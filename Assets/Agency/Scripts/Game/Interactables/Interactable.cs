@@ -15,7 +15,7 @@ public class Interactable : MonoBehaviour
 	public UnityEvent interaction_event;
 	public string description = "";
 
-	new Collider collider;
+	public /*new */ Collider collider;
 	protected bool is_near;
 
 
@@ -26,13 +26,13 @@ public class Interactable : MonoBehaviour
 	void Reset()
 	{
 		relevant_layers = LayerMask.NameToLayer("Everything");
-		collider = GetComponent<Collider>();
-		collider.isTrigger = true;
+		InitCollider();
 	}
 
 
 	protected void Start()
 	{
+		InitCollider();
 		interaction_description = CreateText(GameObject.Find("InteractionCanvas"));
 	}
 
@@ -84,6 +84,22 @@ public class Interactable : MonoBehaviour
 	{
 		interaction_event.Invoke();
 		Debug.Log("Interaction");
+	}
+
+
+	protected virtual void AssignCollider()
+	{
+		if (null == collider)
+		{
+			collider = GetComponent<Collider>();
+		}
+	}
+
+
+	protected virtual void InitCollider()
+	{
+		AssignCollider();
+		collider.isTrigger = true;
 	}
 
 

@@ -8,8 +8,6 @@ using UnityEngine.UI;
  */
 public class InteractOnButtonHold : Interactable
 {
-	public string button_name = "Manipulate";
-
 	[Tooltip("The button must be held this long, in seconds, before the event is triggered")]
 	protected float time_to_hold = 0.8f; // Seconds
 
@@ -19,17 +17,10 @@ public class InteractOnButtonHold : Interactable
 	private float time_elapsed; // Counter for the progress
 
 
-	void Start()
-	{
-		this.description = "[G] Manipulate";
-		base.Start();
-	}
-
-
-	void Update()
+	protected override void Update()
 	{
 		base.Update();
-		if (AllowInteraction() && Input.GetButton(button_name))
+		if (AllowInteraction() && Input.GetButton(GetInteractionData().GetButtonName()))
 		{
 			if (FinishProgress())
 			{

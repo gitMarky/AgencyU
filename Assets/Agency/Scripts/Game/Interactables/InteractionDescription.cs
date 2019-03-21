@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 
 /**
@@ -10,20 +11,51 @@ using UnityEngine.UI;
  */
 public class InteractionDescription : MonoBehaviour
 {
-	public Text _interaction_text;
+	/** Description for the interaction. */
+	public string description;
+
+	/** This event is called, by default, on interaction. */
+	public UnityEvent interaction_event;
+
+	/** This button needs to be pressed for the interaction to take place. */
+	public string button;
 
 
-	// Start is called before the first frame update
-	void Start()
+	/* --- Unity Callbacks --- */
+
+	public void Reset()
 	{
-		//_interaction_text = Instantiate(_interaction_text, GameObject.Find("InteractionCanvas").transform);
-		//_interaction_text = new Text();
-		_interaction_text.text = "My cool custom boogy-woogy text";
+		button = "Interact";
+		description = "";
 	}
 
-	// Update is called once per frame
-	void Update()
-	{
 
+	/* --- Custom interface --- */
+
+	/**
+	 Some of this does not make much sense, 
+	 given that the field is public - but,
+	 I prefer function access when I do not
+	 want to change the values. 
+	 */
+
+	/** Calls the interaction event. */
+	public void DoInteraction()
+	{
+		interaction_event.Invoke();
+	}
+
+
+	/** Gets the button name (the name of the control). */
+	public string GetButtonName()
+	{
+		return button;
+	}
+
+
+	/** Gets a formatted description of what the button does. */
+	public string GetDescription()
+	{
+		return "[" + button + "] " + description;
 	}
 }

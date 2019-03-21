@@ -8,20 +8,10 @@ using UnityEngine.Events;
  */
 public class InteractOnButtonPress : Interactable
 {
-	public string button_name = "Interact";
-
-
-	void Start()
-	{
-		this.description = "[E] Use"; // TODO
-		base.Start();
-	}
-
-
-	void Update()
+	protected override void Update()
 	{
 		base.Update();
-		if (AllowInteraction() && Input.GetButtonDown(button_name))
+		if (AllowInteraction() && Input.GetButtonDown(GetInteractionData().GetButtonName()))
 		{
 			ExecuteInteraction();
 		}

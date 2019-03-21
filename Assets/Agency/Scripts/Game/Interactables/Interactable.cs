@@ -8,14 +8,14 @@ using UnityEngine.UI;
 	Allows setting up relevant layers that can
 	interact with this object.
  */
-[RequireComponent(typeof(Collider))]
+[RequireComponent(typeof(InteractionDescription))]
 public class Interactable : MonoBehaviour
 {
 	public LayerMask relevant_layers;
-	public UnityEvent interaction_event;
-	public string description = "";
 
-	public /*new */ Collider collider;
+	public InteractionDescription interaction_data;
+
+	public Collider is_near_collider;
 	protected bool is_near;
 
 
@@ -23,21 +23,20 @@ public class Interactable : MonoBehaviour
 
 	/* --- Unity Callbacks (?) --- */
 
-	void Reset()
+	protected void Reset()
 	{
 		relevant_layers = LayerMask.NameToLayer("Everything");
-		InitCollider();
 	}
-
 
 	protected void Start()
 	{
 		InitCollider();
+		InitInteractionData();
 		interaction_description = CreateText(GameObject.Find("InteractionCanvas"));
 	}
 
 
-	protected void Update()
+	protected virtual void Update()
 	{
 		UpdateTextPosition();
 	}
@@ -65,6 +64,13 @@ public class Interactable : MonoBehaviour
 
 	/* --- Custom interface --- */
 
+	public InteractionDescription GetInteractionData()
+	{
+		return this.interaction_data;
+	}
+
+	/* --- Custom callbacks --- */
+
 
 	protected virtual void ExecuteOnEnter(Collider user)
 	{
@@ -82,24 +88,33 @@ public class Interactable : MonoBehaviour
 
 	protected virtual void ExecuteInteraction()
 	{
-		interaction_event.Invoke();
 		Debug.Log("Interaction");
+		GetInteractionData().DoInteraction();
 	}
 
 
 	protected virtual void AssignCollider()
 	{
-		if (null == collider)
+		if (null == is_near_collider)
 		{
-			collider = GetComponent<Collider>();
+			is_near_collider = GetComponent<Collider>();
 		}
 	}
 
 
-	protected virtual void InitCollider()
+	protected void InitCollider()
 	{
 		AssignCollider();
-		collider.isTrigger = true;
+		is_near_collider.isTrigger = true;
+	}
+
+
+	protected void InitInteractionData()
+	{
+		if (null == interaction_data)
+		{
+			interaction_data = this.gameObject.GetComponent<InteractionDescription>();
+		}
 	}
 
 
@@ -139,7 +154,14 @@ public class Interactable : MonoBehaviour
 		new_text.transform.SetParent(canvas.transform);
 
 		Text text = new_text.AddComponent<Text>();
-		text.text = this.description;
+		if (null == GetInteractionData())
+		{
+			text.text = "ERROR: UNKNOWN TEXT";
+		}
+		else
+		{
+			text.text = GetInteractionData().GetDescription();
+		}
 		text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
 		text.fontSize = 20;
 		//text.enabled = true;
@@ -151,8 +173,11 @@ public class Interactable : MonoBehaviour
 
 	protected void UpdateTextPosition()
 	{
-		// TODO: WorldToScreenPoint should be cached, because it eats performance for every object that does that
-		interaction_description.transform.position = Camera.main.WorldToScreenPoint(this.transform.position);
+		if (null != interaction_description)
+		{
+			// TODO: WorldToScreenPoint should be cached, because it eats performance for every object that does that
+			interaction_description.transform.position = Camera.main.WorldToScreenPoint(this.transform.position);
+		}
 	}
 } 
 

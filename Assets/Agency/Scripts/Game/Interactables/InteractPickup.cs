@@ -4,17 +4,13 @@ using UnityEngine;
 
 public class InteractPickup : InteractOnButtonPress
 {
-	public string button_name = "Pickup";
-	public string description = "[F] Pick up";
-
-
-	protected virtual void AssignCollider()
+	protected override void AssignCollider()
 	{
-		if (null == collider)
+		if (null == is_near_collider)
 		{
 			SphereCollider sphere = this.gameObject.AddComponent<SphereCollider>();
 			sphere.radius = 1.5f;
-			collider = sphere;
+			is_near_collider = sphere;
 		}
 	}
 }

@@ -38,9 +38,10 @@ public class InteractionDescription : MonoBehaviour
 	 I prefer function access when I do not
 	 want to change the values. 
 	 */
+	
 
 	/** Calls the interaction event. */
-	public void DoInteraction()
+	public virtual void DoInteraction()
 	{
 		interaction_event.Invoke();
 	}

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InteractPickup : InteractOnButtonPress
+public class InteractPickup : InteractOnButtonHold
 {
 	protected override void AssignCollider()
 	{

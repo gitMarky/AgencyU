@@ -15,9 +15,17 @@ public class Interactable : MonoBehaviour
 
 	public InteractionDescription interaction_data;
 
-	public Collider is_near_collider;
-	protected bool is_near;
 
+	[Tooltip("Use either this, or is_near_collider. Defines whether the player is near enough for interaction.")]
+	public float is_near_radius;
+
+	[Tooltip("Use either this, or is_near_radius. Defines whether the player is near enough for interaction.")]
+	public Collider is_near_collider;
+
+	[Tooltip("If this is checked, the item will search one of the collider components of its game object. Otherwise, the assigned collider is used, or a sphere collider with the radius is created.")]
+	public bool auto_assign_collider;
+
+	protected bool is_near;
 
 	protected Text interaction_description; // TODO: This may go to a different behavior?
 
@@ -95,9 +103,15 @@ public class Interactable : MonoBehaviour
 
 	protected virtual void AssignCollider()
 	{
-		if (null == is_near_collider)
+		if (null == is_near_collider && auto_assign_collider)
 		{
 			is_near_collider = GetComponent<Collider>();
+		}
+		if (null == is_near_collider && is_near_radius > 0)
+		{
+			SphereCollider sphere = this.gameObject.AddComponent<SphereCollider>();
+			sphere.radius = is_near_radius;
+			is_near_collider = sphere;
 		}
 	}
 
@@ -105,7 +119,10 @@ public class Interactable : MonoBehaviour
 	protected void InitCollider()
 	{
 		AssignCollider();
-		is_near_collider.isTrigger = true;
+		if (null != is_near_collider)
+		{
+			is_near_collider.isTrigger = true;
+		}
 	}
 
 

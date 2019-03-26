@@ -23,7 +23,7 @@ public class InteractionDescription : MonoBehaviour
 
 	/* --- Unity Callbacks --- */
 
-	public void Reset()
+	public virtual void Reset()
 	{
 		button = "Interact";
 		description = "";
@@ -41,7 +41,7 @@ public class InteractionDescription : MonoBehaviour
 	
 
 	/** Calls the interaction event. */
-	public virtual void DoInteraction()
+	public virtual void DoInteraction(GameObject user)
 	{
 		interaction_event.Invoke();
 	}

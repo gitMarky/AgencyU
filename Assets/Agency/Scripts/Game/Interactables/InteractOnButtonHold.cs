@@ -21,11 +21,11 @@ public class InteractOnButtonHold : Interactable
 	protected override void Update()
 	{
 		base.Update();
-		if (AllowInteraction() && Input.GetButton(GetInteractionData().GetButtonName()))
+		if (AllowInteraction(player) && Input.GetButton(GetInteractionData().GetButtonName()))
 		{
 			if (FinishProgress())
 			{
-				ExecuteInteraction();
+				ExecuteInteraction(player.gameObject);
 			}
 		}
 		else

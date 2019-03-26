@@ -4,18 +4,23 @@ using UnityEngine;
 
 public class PickupInteraction : InteractionDescription
 {
-	public void Reset()
+	public override void Reset()
 	{
 		this.description = "Pick up";
 		this.button = "Pickup";
 	}
 
 
-	public override void DoInteraction()
+	public override void DoInteraction(GameObject user)
 	{
-		base.DoInteraction();
+		base.DoInteraction(user);
+
+		if (null != user)
+		{
+			gameObject.transform.SetParent(user.transform);
+		}
 		// TODO: Add to inventory
-		Destroy(gameObject);
+		//Destroy(gameObject);
 	}
 }
 

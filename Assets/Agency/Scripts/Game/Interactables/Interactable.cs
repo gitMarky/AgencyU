@@ -25,7 +25,9 @@ public class Interactable : MonoBehaviour
 	[Tooltip("If this is checked, the item will search one of the collider components of its game object. Otherwise, the assigned collider is used, or a sphere collider with the radius is created.")]
 	public bool auto_assign_collider;
 
-	protected bool is_near;
+	public List<Collider> is_near = new List<Collider>();
+
+	protected Collider player;
 
 	protected Text interaction_description; // TODO: This may go to a different behavior?
 
@@ -54,7 +56,12 @@ public class Interactable : MonoBehaviour
 	{
 		if (IsInAppropriateLayer(user))
 		{
-			is_near = true;
+			if (user.gameObject.CompareTag("Player"))
+			{
+				player = user;
+			}
+
+			is_near.Add(user);
 			ExecuteOnEnter(user);
 		}
 	}
@@ -64,7 +71,7 @@ public class Interactable : MonoBehaviour
 	{
 		if (IsInAppropriateLayer(user))
 		{
-			is_near = false;
+			is_near.Remove(user);
 			ExecuteOnExit(user);
 		}
 	}
@@ -94,10 +101,10 @@ public class Interactable : MonoBehaviour
 	}
 
 
-	protected virtual void ExecuteInteraction()
+	protected virtual void ExecuteInteraction(GameObject user)
 	{
 		Debug.Log("Interaction");
-		GetInteractionData().DoInteraction();
+		GetInteractionData().DoInteraction(user);
 	}
 
 
@@ -136,6 +143,7 @@ public class Interactable : MonoBehaviour
 
 
 	/* --- Gizmos --- */
+	#region Gizmos
 
 
 	void OnDrawGizmos()
@@ -150,7 +158,9 @@ public class Interactable : MonoBehaviour
 	}
 
 
+	#endregion
 	/* --- Internals --- */
+	#region Internals
 
 
 	private bool IsInAppropriateLayer(Collider user)
@@ -159,9 +169,13 @@ public class Interactable : MonoBehaviour
 	}
 
 
-	protected bool AllowInteraction()
+	protected bool AllowInteraction(Collider user)
 	{
-		return is_near;
+		if (user == null)
+		{
+			return false;
+		}
+		return is_near.Contains(user);
 	}
 
 
@@ -196,5 +210,8 @@ public class Interactable : MonoBehaviour
 			interaction_description.transform.position = Camera.main.WorldToScreenPoint(this.transform.position);
 		}
 	}
+
+
+	#endregion
 } 
 

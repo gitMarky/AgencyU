@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class PickupInteraction : InteractionDescription
 {
-	[Tooltip("The object attaches at this position when held, relative to the parent transform.")]
+	[Tooltip("The object attaches at this position when held, relative to the parent transform. Optional, for when you have no transform.")]
 	public Vector3 attachment_position;
 	public Vector3 attachment_rotation;
+
+	[Tooltip("The object attaches at this position when held, overrides position and rotation")]
+	public Transform attachment_transform;
 
 
 	public override void Reset()
@@ -20,25 +23,54 @@ public class PickupInteraction : InteractionDescription
 	{
 		base.DoInteraction(user);
 
-		if (null != user)
+		if (user != null)
 		{
-			HumanoidAttachment attach_manager = user.GetComponent<HumanoidAttachment>();
-			if (null != attach_manager)
+			HumanoidInventoryController inventory = user.GetComponent<HumanoidInventoryController>();
+			if (inventory != null)
 			{
-				gameObject.transform.SetParent(attach_manager.attach_right_hand);
-				gameObject.transform.localPosition = attachment_position;
-				gameObject.transform.localEulerAngles = attachment_rotation;
-
-				Rigidbody physics = this.GetComponent<Rigidbody>();
-				if (null != physics)
-				{
-					physics.isKinematic = true;
-				}
+				inventory.Pickup(gameObject);
 			}
 			//gameObject.transform.SetParent(user.transform);
 		}
 		// TODO: Add to inventory
 		//Destroy(gameObject);
+	}
+
+
+	public void AttachTo(Transform parent)
+	{
+		gameObject.transform.SetParent(parent);
+
+		if (attachment_transform == null)
+		{
+			gameObject.transform.localPosition = attachment_position;
+			gameObject.transform.localEulerAngles = attachment_rotation;
+		}
+		else
+		{
+			gameObject.transform.localPosition = attachment_transform.localPosition;
+			gameObject.transform.localEulerAngles = attachment_transform.localEulerAngles;
+		}
+
+		SetPhysicsActive(false);
+	}
+
+
+	public void Detach()
+	{
+		gameObject.transform.SetParent(null);
+
+		SetPhysicsActive(true);
+	}
+
+
+	private void SetPhysicsActive(bool active)
+	{
+		Rigidbody physics = this.GetComponent<Rigidbody>();
+		if (null != physics)
+		{
+			physics.isKinematic = !active;
+		}
 	}
 
 

@@ -5,33 +5,98 @@ using UnityEngine;
 public class HumanoidInventoryController : MonoBehaviour
 {
 	// This item is held in the right hand
-	private GameObject right_hand_item;
+	private PickupInteraction right_hand_item;
 
 	// This item is held in the left hand
-	private GameObject left_hand_item;
+	private PickupInteraction left_hand_item;
 
 	// This item is carried on the back
-	private GameObject back_item;
+	private PickupInteraction back_item;
 
+#region UnityCallbacks
 	void Update()
 	{
 		if (Input.GetButton("Place"))
 		{
-			if (right_hand_item != null)
-			{
-				DropItem(right_hand_item, true);
-				right_hand_item = null;
-				return;
-			}
+			ExecutePlace();
+		}
+		else if (Input.GetButton("Holster"))
+		{
+			ExecuteHolster();
+		}
+	}
+#endregion
+
+#region Placing
+
+	private void ExecutePlace()
+	{
+		if (right_hand_item != null)
+		{
+			DropItem(right_hand_item, true);
+			right_hand_item = null;
+			return;
 		}
 	}
 
-	public GameObject GetItemInRightHand()
+#endregion
+
+#region Holstering
+
+	private void ExecuteHolster()
+	{
+		TryHolster(right_hand_item);
+	}
+
+	private bool TryHolster(PickupInteraction item)
+	{
+		if (item == null)
+		{
+			return false;
+		}
+		switch (item.GetHolsterType())
+		{
+			case HolsterType.Stashable:
+				if (item.IsHolstered())
+				{
+					Debug.Log("Unsupported");
+				}
+				else
+				{
+					return StashToInventory(item);
+				}
+				break;
+			default:
+				Debug.Log("Unsupported");
+				break;
+		}
+		return false;
+	}
+
+	private bool StashToInventory(PickupInteraction item)
+	{
+		if (item != null)
+		{
+			item.SetHolstered(true);
+			item.gameObject.SetActive(false);
+		}
+		return false;
+	}
+
+#endregion
+
+#region Getters
+	
+	public PickupInteraction GetItemInRightHand()
 	{
 		return right_hand_item;
 	}
 
-	public void Pickup(GameObject item)
+#endregion
+
+#region PickupLogic
+
+	public void Pickup(PickupInteraction item)
 	{
 		if (PickupRightHand(item))
 		{
@@ -39,7 +104,7 @@ public class HumanoidInventoryController : MonoBehaviour
 		}
 	}
 
-	public bool PickupRightHand(GameObject item)
+	public bool PickupRightHand(PickupInteraction item)
 	{
 		// Hand is free, pick it up
 		if (GetItemInRightHand() == null)
@@ -55,25 +120,27 @@ public class HumanoidInventoryController : MonoBehaviour
 		return false;
 	}
 
-	private void AttachToRightHand(GameObject item)
+#endregion
+
+#region  MeshLogic
+	private void AttachToRightHand(PickupInteraction item)
 	{
 		HumanoidAttachment attach_manager = GetComponent<HumanoidAttachment>();
-		PickupInteraction pickup = item.GetComponent<PickupInteraction>();
 
-		if (attach_manager != null && pickup != null)
+		if (attach_manager != null && item != null)
 		{
-			pickup.AttachTo(attach_manager.attach_right_hand);
+			item.AttachTo(attach_manager.attach_right_hand);
 		}
 	}
 
 
-	private void DropItem(GameObject item, bool is_attached)
+	private void DropItem(PickupInteraction item, bool is_attached)
 	{
-		PickupInteraction pickup = item.GetComponent<PickupInteraction>();
-
-		if (pickup != null)
+		if (item != null)
 		{
-			pickup.Detach();
+			item.Detach();
 		}
 	}
 }
+
+#endregion

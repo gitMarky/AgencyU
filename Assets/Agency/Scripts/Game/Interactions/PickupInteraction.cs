@@ -5,11 +5,19 @@ using UnityEngine;
 public class PickupInteraction : InteractionDescription
 {
 	[Tooltip("The object attaches at this position when held, relative to the parent transform. Optional, for when you have no transform.")]
-	public Vector3 attachment_position;
-	public Vector3 attachment_rotation;
+	public Vector3 carry_position;
+	public Vector3 carry_rotation;
 
 	[Tooltip("The object attaches at this position when held, overrides position and rotation")]
-	public Transform attachment_transform;
+	public Transform carry_transform;
+
+	[Tooltip("Defines, how the item is carried")]
+	public CarryType carry_type;
+
+	[Tooltip("Defines the size of the item in the inventory")]
+	public HolsterType holster_type;
+
+	private bool is_holstered = false;
 
 
 	public override void Reset()
@@ -28,7 +36,7 @@ public class PickupInteraction : InteractionDescription
 			HumanoidInventoryController inventory = user.GetComponent<HumanoidInventoryController>();
 			if (inventory != null)
 			{
-				inventory.Pickup(gameObject);
+				inventory.Pickup(this);
 			}
 			//gameObject.transform.SetParent(user.transform);
 		}
@@ -36,20 +44,48 @@ public class PickupInteraction : InteractionDescription
 		//Destroy(gameObject);
 	}
 
+#region Holstering
 
+	public void SetHolstered(bool holstered)
+	{
+		is_holstered = holstered;
+	}
+
+	public bool IsHolstered()
+	{
+		return is_holstered;
+	}
+
+#endregion
+
+#region Getters
+
+	public CarryType GetCarryType()
+	{
+		return carry_type; // This is public, too, but it is more likely to be renamed
+	}
+
+	public HolsterType GetHolsterType()
+	{
+		return holster_type;
+	}
+
+#endregion
+
+#region Behavior
 	public void AttachTo(Transform parent)
 	{
 		gameObject.transform.SetParent(parent);
 
-		if (attachment_transform == null)
+		if (carry_transform == null)
 		{
-			gameObject.transform.localPosition = attachment_position;
-			gameObject.transform.localEulerAngles = attachment_rotation;
+			gameObject.transform.localPosition = carry_position;
+			gameObject.transform.localEulerAngles = carry_rotation;
 		}
 		else
 		{
-			gameObject.transform.localPosition = attachment_transform.localPosition;
-			gameObject.transform.localEulerAngles = attachment_transform.localEulerAngles;
+			gameObject.transform.localPosition = carry_transform.localPosition;
+			gameObject.transform.localEulerAngles = carry_transform.localEulerAngles;
 		}
 
 		SetPhysicsActive(false);
@@ -77,7 +113,9 @@ public class PickupInteraction : InteractionDescription
 	void OnDrawGizmosSelected()
 	{
 		Gizmos.color = Color.red;
-		Gizmos.DrawSphere(transform.position + attachment_position, 0.01f);
+		Gizmos.DrawSphere(transform.position + carry_position, 0.01f);
 	}
+
+#endregion
 }
 

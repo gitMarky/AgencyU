@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class HumanoidInventoryController : Inventory
 {
+	private float button_cooldown = 0.0f;
+
 	// This item is held in the right hand
 	private PickupInteraction main_hand_item;
 
@@ -21,11 +23,18 @@ public class HumanoidInventoryController : Inventory
 #region UnityCallbacks
 	void Update()
 	{
-		if (Input.GetButton("Place"))
+		// Add some delay
+		if (button_cooldown > 0.0f)
+		{
+			button_cooldown -= Time.deltaTime;
+			return;
+		}
+
+		if (Input.GetButtonDown("Place"))
 		{
 			ExecutePlace();
 		}
-		else if (Input.GetButton("Holster"))
+		else if (Input.GetButtonDown("Holster"))
 		{
 			ExecuteHolster();
 		}
@@ -60,26 +69,32 @@ public class HumanoidInventoryController : Inventory
 		// - (not holstering): Drop left hand item
 
 		// Put away the main hand item?
-		if (DoHolsterMainHand() != HolsterResult.Invalid)
+		switch (DoHolsterMainHand())
 		{
-			return;
+			case HolsterResult.Success:
+				DoButtonCooldown();
+				return;
+			case HolsterResult.Blocked:
+				// Stop, but allow dropping the item, etc.
+				return;
+			case HolsterResult.Invalid:
+			default:
+				// Try something else!
+				break;
 		}
-		if (DoUnholsterInventoryItem() != HolsterResult.Invalid)
+		switch (DoUnholsterInventoryItem())
 		{
-			return;
+			case HolsterResult.Success:
+				DoButtonCooldown();
+				return;
+			case HolsterResult.Blocked:
+				// Stop, but allow dropping the item, etc.
+				return;
+			case HolsterResult.Invalid:
+			default:
+				// Try something else!
+				break;
 		}
-
-/* 
-		// Structure is not good yet here...
-		if (TryHolster(main_hand_item))
-		{
-			main_hand_item = null; // Right hand is empty :)
-		}
-		else if (TryDraw(inventory_item))
-		{
-			main_hand_item = inventory_item;
-		}
-*/
 	}
 
 	private HolsterResult DoHolsterMainHand()
@@ -235,6 +250,14 @@ public class HumanoidInventoryController : Inventory
 			item.Detach();
 		}
 	}
-}
+#endregion
+
+#region Misc
+
+	private void DoButtonCooldown()
+	{
+		button_cooldown = 0.1f;
+	}
 
 #endregion
+}

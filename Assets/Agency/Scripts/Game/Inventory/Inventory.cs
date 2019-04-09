@@ -20,4 +20,14 @@ public class Inventory : MonoBehaviour
 	{
 		items.Remove(item);
 	}
+
+
+	public bool HasItem(PickupInteraction item)
+	{
+		if (item == null)
+		{
+			return false;
+		}
+		return items.Contains(item);
+	}
 }

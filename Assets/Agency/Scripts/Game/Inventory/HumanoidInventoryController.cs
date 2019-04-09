@@ -196,38 +196,24 @@ public class HumanoidInventoryController : Inventory
 
 	public void Pickup(PickupInteraction item)
 	{
-		if (PickupRightHand(item))
+		switch (item.GetCarryType())
 		{
-			return;
+			case CarryType.Main_Hand:
+				// Hand is free, pick it up
+				if (main_hand_item == null)
+				{
+					Debug.Log("Picked up to right hand"); // + item.gameObject.Name);
+					AddItem(item);
+					main_hand_item = item;
+					inventory_item = item;
+					AttachToRightHand(item);
+					return;
+				}
+				break;
+			default:
+				break;
 		}
 	}
-
-	public bool PickupRightHand(PickupInteraction item)
-	{
-		// Holster the right hand item, if possible
-		//HolsterRightHand();
-		// Hand is free, pick it up
-		if (main_hand_item == null)
-		{
-			Debug.Log("Picked up to right hand"); // + item.gameObject.Name);
-			AddItem(item);
-			main_hand_item = item;
-			inventory_item = item;
-			AttachToRightHand(item);
-			return true;
-		}
-
-		return false;
-	}
-
-
-	/* private void HolsterRightHand()
-	{
-		if (TryHolster(main_hand_item))
-		{
-			main_hand_item = null;
-		}
-	}*/
 
 #endregion
 
@@ -247,6 +233,12 @@ public class HumanoidInventoryController : Inventory
 	{
 		if (item != null)
 		{
+			// Not in the inventory anymore
+			RemoveItem(item);
+			// Make the item visible
+			item.SetHolstered(false);
+			item.SetVisible(true);
+			// Drop it!
 			item.Detach();
 		}
 	}

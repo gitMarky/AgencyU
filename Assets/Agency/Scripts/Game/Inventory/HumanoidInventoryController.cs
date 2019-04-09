@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HumanoidInventoryController : MonoBehaviour
+public class HumanoidInventoryController : Inventory
 {
 	// This item is held in the right hand
 	private PickupInteraction right_hand_item;
@@ -12,6 +12,9 @@ public class HumanoidInventoryController : MonoBehaviour
 
 	// This item is carried on the back
 	private PickupInteraction back_item;
+
+	// This item is selected for holstering/drawing.
+	private PickupInteraction inventory_item;
 
 #region UnityCallbacks
 	void Update()
@@ -45,7 +48,22 @@ public class HumanoidInventoryController : MonoBehaviour
 
 	private void ExecuteHolster()
 	{
-		TryHolster(right_hand_item);
+		// Holster types:
+		// - holster right hand item to inventory
+		// - holster right hand item to back
+		// - draw back item
+		// - draw current item
+		// - (not holstering): Drop left hand item
+
+		// Structure is not good yet here...
+		if (TryHolster(right_hand_item))
+		{
+			right_hand_item = null; // Right hand is empty :)
+		}
+		else if (TryDraw(inventory_item))
+		{
+			right_hand_item = inventory_item;
+		}
 	}
 
 	private bool TryHolster(PickupInteraction item)
@@ -73,12 +91,37 @@ public class HumanoidInventoryController : MonoBehaviour
 		return false;
 	}
 
+
+	private bool TryDraw(PickupInteraction item)
+	{
+		if (item != null && item.IsHolstered())
+		{
+			HolsterRightHand();
+			if (right_hand_item == null)
+			{
+				// Item status
+				item.SetHolstered(false);
+				item.gameObject.SetActive(true);
+				// Inventory status
+				right_hand_item = item;
+				inventory_item = item;
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private bool StashToInventory(PickupInteraction item)
 	{
 		if (item != null)
 		{
+			Debug.Log("Stash to inventory"); // + item.gameObject.Name);
+			// Item status
 			item.SetHolstered(true);
 			item.gameObject.SetActive(false);
+			// Inventory status
+			inventory_item = item;
+			return true;
 		}
 		return false;
 	}
@@ -90,6 +133,11 @@ public class HumanoidInventoryController : MonoBehaviour
 	public PickupInteraction GetItemInRightHand()
 	{
 		return right_hand_item;
+	}
+
+	public PickupInteraction GetItemInSelection()
+	{
+		return inventory_item;
 	}
 
 #endregion
@@ -106,18 +154,29 @@ public class HumanoidInventoryController : MonoBehaviour
 
 	public bool PickupRightHand(PickupInteraction item)
 	{
+		// Holster the right hand item, if possible
+		HolsterRightHand();
 		// Hand is free, pick it up
-		if (GetItemInRightHand() == null)
+		if (right_hand_item == null)
 		{
+			Debug.Log("Picked up to right hand"); // + item.gameObject.Name);
+			AddItem(item);
 			right_hand_item = item;
+			inventory_item = item;
 			AttachToRightHand(item);
-		}
-		else // If the item can be stashed, do that
-		{
-			// TODO!
+			return true;
 		}
 
 		return false;
+	}
+
+
+	private void HolsterRightHand()
+	{
+		if (TryHolster(right_hand_item))
+		{
+			right_hand_item = null;
+		}
 	}
 
 #endregion

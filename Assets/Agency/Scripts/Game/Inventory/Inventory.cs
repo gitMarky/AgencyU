@@ -2,29 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/**
+ Base class for any sort of inventory.
+ */
 public class Inventory : MonoBehaviour
 {
-	// This item is held in the right hand
-	private GameObject right_hand_item;
-
-	// This item is held in the left hand
-	private GameObject left_hand_item;
-
-	// This item is carried on the back
-	private GameObject back_item;
+	public List<PickupInteraction> items = new List<PickupInteraction>();
 
 
-/*	public List<Item> items = new List<Item>();
-
-
-	public void Add(Item item)
+	public void AddItem(PickupInteraction item)
 	{
 		items.Add(item);
 	}
 
 
-	public void Remove(Item item)
+	public void RemoveItem(PickupInteraction item)
 	{
 		items.Remove(item);
-	}*/
+	}
 }

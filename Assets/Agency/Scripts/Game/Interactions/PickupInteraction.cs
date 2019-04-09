@@ -58,6 +58,16 @@ public class PickupInteraction : InteractionDescription
 
 #endregion
 
+#region  Visibility
+
+	public void SetVisible(bool visible)
+	{
+		// TODO: Should be the model
+		gameObject.SetActive(visible);
+	}
+
+#endregion
+
 #region Getters
 
 	public CarryType GetCarryType()

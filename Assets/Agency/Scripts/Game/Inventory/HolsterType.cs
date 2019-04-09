@@ -14,4 +14,3 @@ public enum HolsterType
 	/** Can be carried only. */
 	CarryOnly
 }
-

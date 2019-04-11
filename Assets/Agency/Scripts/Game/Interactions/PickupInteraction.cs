@@ -123,7 +123,7 @@ public class PickupInteraction : InteractionDescription
 	void OnDrawGizmosSelected()
 	{
 		Gizmos.color = Color.red;
-		Gizmos.DrawSphere(transform.position + carry_position, 0.01f);
+		Gizmos.DrawWireSphere(transform.position + carry_position, 0.05f);
 	}
 
 #endregion

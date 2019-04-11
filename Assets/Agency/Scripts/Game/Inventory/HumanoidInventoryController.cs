@@ -196,6 +196,52 @@ public class HumanoidInventoryController : Inventory
 
 	public void Pickup(PickupInteraction item)
 	{
+		switch (item.GetHolsterType())
+		{
+			case HolsterType.CarryOnly:
+				return PickupCarryOnly(item);
+			case HolsterType.Sling:
+			case HolsterType.Stashable:
+				return PickupHolsterable(item);
+			default:
+				Debug.Log("This should be impossible");
+		}
+	}
+
+	private void PickupCarryOnly(PickupInteraction item)
+	{
+		switch (item.GetCarryType())
+		{
+			case CarryType.Main_Hand:
+				if (main_hand_item == null)
+				{
+					// Pick it up
+					Debug.Log("Unsupported: Pick up main hand item");
+				}
+				else
+				{
+					PickupSwap(item, main_hand_item);
+				}
+				break;
+			case CarryType.Off_Hand:
+				if (off_hand_item == null)
+				{
+					// Pick it up
+					Debug.Log("Unsupported: Pick up off hand item");
+				}
+				else
+				{
+					PickupSwap(item, off_hand_item);
+				}
+				break;
+			case CarryType.Both_Hands:
+				break;
+		}
+	}
+
+	private void PickupHolsterable(PickupInteraction item)
+	{
+		// That is the old logic, but it is wrong, I think...
 		switch (item.GetCarryType())
 		{
 			case CarryType.Main_Hand:
@@ -209,6 +255,13 @@ public class HumanoidInventoryController : Inventory
 					AttachToRightHand(item);
 					return;
 				}
+				else
+				{
+					// Main hand holsterable: Holster it, pick up new item
+					// Main hand carry only: Try to holster the item (has to be checked with rifle)
+				}
+				// Otherwise: Stash hand
+
 				break;
 			default:
 				break;

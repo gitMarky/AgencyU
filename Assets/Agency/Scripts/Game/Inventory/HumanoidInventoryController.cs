@@ -7,18 +7,18 @@ public class HumanoidInventoryController : Inventory
 	private float button_cooldown = 0.0f;
 
 	// This item is held in the right hand
-	private PickupInteraction main_hand_item;
+	private PickupInteraction in_hand;
 
 	// This item is held in the left hand
-	private PickupInteraction off_hand_item;
+	private PickupInteraction suitcase;
 
 	// This item is carried on the back
-	private PickupInteraction back_item;
+	private PickupInteraction on_back;
 
 	// This item is selected for holstering/drawing.
 	// This is also the item for the main hand,
 	// which may be confusing (and maybe I find a better solution)
-	private PickupInteraction inventory_item;
+	private PickupInteraction active_item;
 
 #region UnityCallbacks
 	void Update()
@@ -45,10 +45,10 @@ public class HumanoidInventoryController : Inventory
 
 	private void ExecutePlace()
 	{
-		if (main_hand_item != null)
+		if (in_hand != null)
 		{
-			DropItem(main_hand_item, true);
-			main_hand_item = null;
+			DropItem(in_hand, true);
+			in_hand = null;
 			return;
 		}
 	}
@@ -99,33 +99,33 @@ public class HumanoidInventoryController : Inventory
 
 	private HolsterResult DoHolsterMainHand()
 	{
-		if (main_hand_item == null || main_hand_item.IsHolstered())
+		if (in_hand == null || in_hand.IsHolstered())
 		{
 			return HolsterResult.Invalid;
 		}
-		switch (main_hand_item.GetItemSize())
+		switch (in_hand.GetItemSize())
 		{
 			case ItemSize.Small:
 				Debug.Log("Stash to inventory"); // + item.gameObject.Name);
 				// Item is holstered
-				main_hand_item.SetHolstered(true);
-				main_hand_item.SetVisible(false);
+				in_hand.SetHolstered(true);
+				in_hand.SetVisible(false);
 				// Item is selected
-				inventory_item = main_hand_item;
+				active_item = in_hand;
 				// Hand is empty now, but do not detach
-				main_hand_item = null;
+				in_hand = null;
 				return HolsterResult.Success;
 			case ItemSize.Large:
-				if (back_item == null)
+				if (on_back == null)
 				{
 					Debug.Log("Holster to back");
 					// Item is holstered
-					main_hand_item.SetHolstered(true);
-					main_hand_item.SetVisible(true);
+					in_hand.SetHolstered(true);
+					in_hand.SetVisible(true);
 					// Item is selected
-					back_item = main_hand_item;
+					on_back = in_hand;
 					// Hand is empty now, but do not detach
-					main_hand_item = null;
+					in_hand = null;
 					return HolsterResult.Success;
 				}
 				else
@@ -146,20 +146,20 @@ public class HumanoidInventoryController : Inventory
 
 	private HolsterResult DoUnholsterInventoryItem()
 	{
-		if (inventory_item == null || !inventory_item.IsHolstered())
+		if (active_item == null || !active_item.IsHolstered())
 		{
 			return HolsterResult.Invalid;
 		}
-		if (main_hand_item != null)
+		if (in_hand != null)
 		{
 			Debug.Log("Unsupported: Stash holstered item first");
 			return HolsterResult.Blocked;
 		}
 		// Put item in main hand
-		main_hand_item = inventory_item;
+		in_hand = active_item;
 		// Unholster
-		main_hand_item.SetHolstered(false);
-		main_hand_item.SetVisible(true);
+		in_hand.SetHolstered(false);
+		in_hand.SetVisible(true);
 		// We are good!
 		return HolsterResult.Success;
 	}
@@ -170,14 +170,14 @@ public class HumanoidInventoryController : Inventory
 		if (item != null && item.IsHolstered())
 		{
 			//HolsterRightHand();
-			if (main_hand_item == null)
+			if (in_hand == null)
 			{
 				// Item status
 				item.SetHolstered(false);
 				item.gameObject.SetActive(true);
 				// Inventory status
-				main_hand_item = item;
-				inventory_item = item;
+				in_hand = item;
+				active_item = item;
 				return true;
 			}
 		}
@@ -190,12 +190,12 @@ public class HumanoidInventoryController : Inventory
 	
 	public PickupInteraction GetItemInRightHand()
 	{
-		return main_hand_item;
+		return in_hand;
 	}
 
 	public PickupInteraction GetItemInSelection()
 	{
-		return inventory_item;
+		return active_item;
 	}
 
 #endregion
@@ -205,10 +205,10 @@ public class HumanoidInventoryController : Inventory
 	public void Pickup(PickupInteraction item)
 	{
 		/*
-		if (item == main_hand_item
-		||  item == off_hand_item
-		||  item == back_item
-		||  item == inventory_item
+		if (item == in_hand
+		||  item == suitcase
+		||  item == on_back
+		||  item == active_item
 		||  HasI)*/
 		if (item == null)
 		{
@@ -236,14 +236,14 @@ public class HumanoidInventoryController : Inventory
 
 	private void PickupCarryOnly(PickupInteraction item)
 	{
-		if (main_hand_item == null)
+		if (in_hand == null)
 		{
 			// Pick it up
 			Debug.Log("Unsupported: Pick up main hand item");
 		}
 		else
 		{
-			PickupSwap(item, main_hand_item);
+			PickupSwap(item, in_hand);
 		}
 	}
 
@@ -252,17 +252,17 @@ public class HumanoidInventoryController : Inventory
 		DoButtonCooldown();
 		
 		// Hand is free, pick it up
-		if (main_hand_item == null)
+		if (in_hand == null)
 		{
 			Debug.Log("Picked up to right hand"); // + item.gameObject.Name);
 			AddItem(item);
-			main_hand_item = item;
-			inventory_item = item;
+			in_hand = item;
+			active_item = item;
 			AttachToRightHand(item);
 			return;	
 		}
 		// Hand is occuppied? Pick it up to the inventory
-		else if (main_hand_item.GetItemSize() == ItemSize.Large)
+		else if (in_hand.GetItemSize() == ItemSize.Large)
 		{
 			Debug.Log("Unsupported: Pick up to inventory"); // + item.gameObject.Name);
 			AddItem(item);
@@ -280,8 +280,8 @@ public class HumanoidInventoryController : Inventory
 			{
 				// Same as initial result. TODO Change code structure?
 				AddItem(item);
-				main_hand_item = item;
-				inventory_item = item;
+				in_hand = item;
+				active_item = item;
 				AttachToRightHand(item);
 			}
 		}

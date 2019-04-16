@@ -11,11 +11,9 @@ public class PickupInteraction : InteractionDescription
 	[Tooltip("The object attaches at this position when held, overrides position and rotation")]
 	public Transform carry_transform;
 
-	[Tooltip("Defines, how the item is carried")]
-	public CarryType carry_type;
 
 	[Tooltip("Defines the size of the item in the inventory")]
-	public HolsterType holster_type;
+	public ItemSize item_size;
 
 	private bool is_holstered = false;
 
@@ -70,14 +68,9 @@ public class PickupInteraction : InteractionDescription
 
 #region Getters
 
-	public CarryType GetCarryType()
+	public ItemSize GetItemSize()
 	{
-		return carry_type; // This is public, too, but it is more likely to be renamed
-	}
-
-	public HolsterType GetHolsterType()
-	{
-		return holster_type;
+		return item_size;
 	}
 
 #endregion

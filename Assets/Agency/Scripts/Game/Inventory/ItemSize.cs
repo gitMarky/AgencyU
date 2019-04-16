@@ -5,12 +5,14 @@ using UnityEngine;
 /**
  Defines how an item can be holstered.
  */
-public enum HolsterType
+public enum ItemSize
 {
 	/** Can be stashed to the inventory. */
-	Stashable,
+	Small,
 	/** Can be holstered to the back. */
-	Sling,
+	Large,
 	/** Can be carried only. */
-	CarryOnly
+	Bulky,
+	/** Can be carried as a suitcase. */
+	Case
 }

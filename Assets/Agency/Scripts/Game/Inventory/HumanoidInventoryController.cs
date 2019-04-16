@@ -103,9 +103,9 @@ public class HumanoidInventoryController : Inventory
 		{
 			return HolsterResult.Invalid;
 		}
-		switch (main_hand_item.GetHolsterType())
+		switch (main_hand_item.GetItemSize())
 		{
-			case HolsterType.Stashable:
+			case ItemSize.Small:
 				Debug.Log("Stash to inventory"); // + item.gameObject.Name);
 				// Item is holstered
 				main_hand_item.SetHolstered(true);
@@ -115,10 +115,17 @@ public class HumanoidInventoryController : Inventory
 				// Hand is empty now, but do not detach
 				main_hand_item = null;
 				return HolsterResult.Success;
-			case HolsterType.Sling:
+			case ItemSize.Large:
 				if (back_item == null)
 				{
-					Debug.Log("Holster to back not supported yet");
+					Debug.Log("Holster to back");
+					// Item is holstered
+					main_hand_item.SetHolstered(true);
+					main_hand_item.SetVisible(true);
+					// Item is selected
+					back_item = main_hand_item;
+					// Hand is empty now, but do not detach
+					main_hand_item = null;
 					return HolsterResult.Success;
 				}
 				else
@@ -126,7 +133,8 @@ public class HumanoidInventoryController : Inventory
 					// Do not holster, but also do not do anything else
 					return HolsterResult.Blocked;
 				}
-			case HolsterType.CarryOnly:
+			case ItemSize.Bulky:
+			case ItemSize.Case:
 				// Do not holster, but also do not do anything else
 				return HolsterResult.Blocked;
 			default:
@@ -196,75 +204,86 @@ public class HumanoidInventoryController : Inventory
 
 	public void Pickup(PickupInteraction item)
 	{
-		switch (item.GetHolsterType())
+		/*
+		if (item == main_hand_item
+		||  item == off_hand_item
+		||  item == back_item
+		||  item == inventory_item
+		||  HasI)*/
+		if (item == null)
 		{
-			case HolsterType.CarryOnly:
-				return PickupCarryOnly(item);
-			case HolsterType.Sling:
-			case HolsterType.Stashable:
-				return PickupHolsterable(item);
+			return;
+		}
+		if (HasItem(item))
+		{
+			return;
+		}
+
+		switch (item.GetItemSize())
+		{
+			case ItemSize.Bulky:
+				PickupCarryOnly(item);
+				return;
+			case ItemSize.Small:
+			case ItemSize.Large:
+				PickupHolsterable(item);
+				return;
 			default:
 				Debug.Log("This should be impossible");
+				break;
 		}
 	}
 
 	private void PickupCarryOnly(PickupInteraction item)
 	{
-		switch (item.GetCarryType())
+		if (main_hand_item == null)
 		{
-			case CarryType.Main_Hand:
-				if (main_hand_item == null)
-				{
-					// Pick it up
-					Debug.Log("Unsupported: Pick up main hand item");
-				}
-				else
-				{
-					PickupSwap(item, main_hand_item);
-				}
-				break;
-			case CarryType.Off_Hand:
-				if (off_hand_item == null)
-				{
-					// Pick it up
-					Debug.Log("Unsupported: Pick up off hand item");
-				}
-				else
-				{
-					PickupSwap(item, off_hand_item);
-				}
-				break;
-			case CarryType.Both_Hands:
-				break;
+			// Pick it up
+			Debug.Log("Unsupported: Pick up main hand item");
+		}
+		else
+		{
+			PickupSwap(item, main_hand_item);
 		}
 	}
 
 	private void PickupHolsterable(PickupInteraction item)
 	{
-		// That is the old logic, but it is wrong, I think...
-		switch (item.GetCarryType())
+		DoButtonCooldown();
+		
+		// Hand is free, pick it up
+		if (main_hand_item == null)
 		{
-			case CarryType.Main_Hand:
-				// Hand is free, pick it up
-				if (main_hand_item == null)
-				{
-					Debug.Log("Picked up to right hand"); // + item.gameObject.Name);
-					AddItem(item);
-					main_hand_item = item;
-					inventory_item = item;
-					AttachToRightHand(item);
-					return;
-				}
-				else
-				{
-					// Main hand holsterable: Holster it, pick up new item
-					// Main hand carry only: Try to holster the item (has to be checked with rifle)
-				}
-				// Otherwise: Stash hand
-
-				break;
-			default:
-				break;
+			Debug.Log("Picked up to right hand"); // + item.gameObject.Name);
+			AddItem(item);
+			main_hand_item = item;
+			inventory_item = item;
+			AttachToRightHand(item);
+			return;	
+		}
+		// Hand is occuppied? Pick it up to the inventory
+		else if (main_hand_item.GetItemSize() == ItemSize.Large)
+		{
+			Debug.Log("Unsupported: Pick up to inventory"); // + item.gameObject.Name);
+			AddItem(item);
+			// Item is holstered
+			item.SetHolstered(true);
+			item.SetVisible(false);
+			// Item is not selected and not in hand
+			return;
+		}
+		// Holster the main hand item, pick up new item
+		else
+		{
+			Debug.Log("Unsupported: Holster, pick up new item");
+			if (DoHolsterMainHand() == HolsterResult.Success)
+			{
+				// Same as initial result. TODO Change code structure?
+				AddItem(item);
+				main_hand_item = item;
+				inventory_item = item;
+				AttachToRightHand(item);
+			}
 		}
 	}
 
@@ -294,6 +313,11 @@ public class HumanoidInventoryController : Inventory
 			// Drop it!
 			item.Detach();
 		}
+	}
+
+	private void PickupSwap(PickupInteraction item_new, PickupInteraction item_old)
+	{
+		Debug.Log("Swap not supported yet");
 	}
 #endregion
 

@@ -12,6 +12,10 @@ public class Inventory : MonoBehaviour
 
 	public void AddItem(PickupInteraction item)
 	{
+		if (item == null || items.Contains(item))
+		{
+			return;
+		}
 		items.Add(item);
 	}
 

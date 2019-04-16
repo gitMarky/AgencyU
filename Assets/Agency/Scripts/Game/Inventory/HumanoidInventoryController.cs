@@ -94,6 +94,7 @@ public class HumanoidInventoryController : Inventory
 				in_hands.SetVisible(false);
 				// Item is selected
 				active_item = in_hands;
+				AttachToRightHand(in_hands);
 				// Hand is empty now, but do not detach
 				in_hands = null;
 				return HolsterResult.Success;
@@ -104,8 +105,9 @@ public class HumanoidInventoryController : Inventory
 					// Item is holstered, but visible
 					in_hands.SetHolstered(true);
 					in_hands.SetVisible(true);
-					// Item is selected
+					// Item is on back
 					on_back = in_hands;
+					AttachToBack(in_hands);
 					// Hand is empty now, but do not detach
 					in_hands = null;
 					return HolsterResult.Success;
@@ -144,6 +146,7 @@ public class HumanoidInventoryController : Inventory
 		// Unholster
 		in_hands.SetHolstered(false);
 		in_hands.SetVisible(true);
+		AttachToRightHand(in_hands);
 		// We are good!
 		return HolsterResult.Success;
 	}
@@ -337,8 +340,7 @@ public class HumanoidInventoryController : Inventory
 
 		if (attach_manager != null && item != null)
 		{
-			// TODO: Currently this does the same as attaching to the right hand
-			item.AttachTo(attach_manager.attach_right_hand);
+			item.AttachTo(attach_manager.attach_back);
 		}
 	}
 

@@ -8,5 +8,7 @@ using UnityEngine;
  */
 public class HumanoidAttachment : MonoBehaviour
 {
-    public Transform attach_right_hand;
+	public Transform attach_right_hand;
+
+	public Transform attach_back;
 }

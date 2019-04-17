@@ -25,7 +25,7 @@ public class HumanoidInventoryController : Inventory
 
 #region Placing
 
-	protected void ExecutePlace()
+	public void ExecutePlace()
 	{
 		if (in_hands != null)
 		{
@@ -41,7 +41,7 @@ public class HumanoidInventoryController : Inventory
 
 	private enum HolsterResult { Success, Blocked, Invalid }
 
-	protected void ExecuteHolster()
+	public void ExecuteHolster()
 	{
 		// Holster types:
 		// - holster right hand item to inventory

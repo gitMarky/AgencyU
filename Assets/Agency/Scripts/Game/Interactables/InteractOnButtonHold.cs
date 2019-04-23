@@ -8,7 +8,7 @@ using UnityEngine.UI;
  */
 public class InteractOnButtonHold : Interactable
 {
-	[Range(0.0f, 1.0f)]
+	/* [Range(0.0f, 1.0f)]
 	[Tooltip("The button must be held this long, in seconds, before the event is triggered")]
 	public float time_to_hold = 0.0f; // Seconds
 
@@ -61,5 +61,5 @@ public class InteractOnButtonHold : Interactable
 	{
 		time_elapsed = 0f;
 		//progress_image.gameObject.SetActive(false);
-	}
+	}*/
 }

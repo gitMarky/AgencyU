@@ -6,6 +6,7 @@ using UnityEngine;
 	Defines how the player inventory works.
  */
 [RequireComponent(typeof(HumanoidInventoryController))]
+[RequireComponent(typeof(InteractionController))]
 public class PlayerController : MonoBehaviour
 {
 #region UnityCallbacks
@@ -19,6 +20,10 @@ public class PlayerController : MonoBehaviour
 		}*/
 
 		HumanoidInventoryController inventory = this.gameObject.GetComponent<HumanoidInventoryController>();
+		InteractionController interactions = this.gameObject.GetComponent<InteractionController>();
+
+		interactions.UpdateInteractions();
+
 
 		if (Input.GetButtonDown("Place"))
 		{

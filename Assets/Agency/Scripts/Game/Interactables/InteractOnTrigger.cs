@@ -14,13 +14,13 @@ public class InteractOnTrigger : Interactable
 	/* --- Custom interface --- */
 
 
-	protected override void ExecuteOnEnter(Collider user)
+	protected override void ExecuteOnEnter(GameObject user)
 	{
 		trigger_on_enter.Invoke();
 	}
 
 
-	protected override void ExecuteOnExit(Collider user)
+	protected override void ExecuteOnExit(GameObject user)
 	{
 		trigger_on_exit.Invoke();
 	}

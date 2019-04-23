@@ -11,14 +11,18 @@ using UnityEngine.Events;
  */
 public class InteractionDescription : MonoBehaviour
 {
-	/** Description for the interaction. */
+	[Tooltip("Description for the interaction.")]
 	public string description;
 
-	/** This event is called, by default, on interaction. */
+	
+	[Tooltip("This event is called, by default, on interaction.")]
 	public UnityEvent interaction_event;
 
-	/** This button needs to be pressed for the interaction to take place. */
+	[Tooltip("This button needs to be pressed for the interaction to take place. Do not use anymore.")]
 	public string button;
+
+	[Tooltip("This describes the interaction category.")]
+	public InteractionType type;
 
 
 	/* --- Unity Callbacks --- */
@@ -26,6 +30,7 @@ public class InteractionDescription : MonoBehaviour
 	public virtual void Reset()
 	{
 		button = "Interact";
+		type = InteractionType.Use;
 		description = "";
 	}
 
@@ -51,6 +56,13 @@ public class InteractionDescription : MonoBehaviour
 	public string GetButtonName()
 	{
 		return button;
+	}
+
+
+	/** Gets the button name (the name of the control). */
+	public InteractionType GetInteractionType()
+	{
+		return type;
 	}
 
 

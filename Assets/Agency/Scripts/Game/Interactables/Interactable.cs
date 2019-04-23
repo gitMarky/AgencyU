@@ -17,7 +17,7 @@ public class Interactable : MonoBehaviour
 
 
 	[Tooltip("Use either this, or is_near_collider. Defines whether the player is near enough for interaction.")]
-	public float is_near_radius;
+	public float is_near_radius = 1.5f;
 
 	[Tooltip("Use either this, or is_near_radius. Defines whether the player is near enough for interaction.")]
 	public Collider is_near_collider;
@@ -25,9 +25,7 @@ public class Interactable : MonoBehaviour
 	[Tooltip("If this is checked, the item will search one of the collider components of its game object. Otherwise, the assigned collider is used, or a sphere collider with the radius is created.")]
 	public bool auto_assign_collider;
 
-	public List<Collider> is_near = new List<Collider>();
-
-	protected Collider player;
+	public List<GameObject> is_near = new List<GameObject>();
 
 	protected Text interaction_description; // TODO: This may go to a different behavior?
 
@@ -46,33 +44,36 @@ public class Interactable : MonoBehaviour
 	}
 
 
-	protected virtual void Update()
+	void OnTriggerEnter(Collider collider)
 	{
-		UpdateTextPosition();
-	}
-
-
-	void OnTriggerEnter(Collider user)
-	{
+		GameObject user = collider.gameObject;
 		if (IsInAppropriateLayer(user))
 		{
-			if (user.gameObject.CompareTag("Player"))
-			{
-				player = user;
-			}
-
 			is_near.Add(user);
 			ExecuteOnEnter(user);
+
+			InteractionController controller = user.GetComponent<InteractionController>();
+			if (controller != null)
+			{
+				controller.RegisterInteractable(this);
+			}
 		}
 	}
 
 
-	void OnTriggerExit(Collider user)
+	void OnTriggerExit(Collider collider)
 	{
+		GameObject user = collider.gameObject;
 		if (IsInAppropriateLayer(user))
 		{
 			is_near.Remove(user);
 			ExecuteOnExit(user);
+
+			InteractionController controller = user.GetComponent<InteractionController>();
+			if (controller != null)
+			{
+				controller.RemoveInteractable(this);
+			}
 		}
 	}
 
@@ -87,14 +88,14 @@ public class Interactable : MonoBehaviour
 	/* --- Custom callbacks --- */
 
 
-	protected virtual void ExecuteOnEnter(Collider user)
+	protected virtual void ExecuteOnEnter(GameObject user)
 	{
 		// Does nothing by default
 		Debug.Log("On enter");
 	}
 
 
-	protected virtual void ExecuteOnExit(Collider user)
+	protected virtual void ExecuteOnExit(GameObject user)
 	{
 		// Does nothing by default
 		Debug.Log("On exit");
@@ -163,19 +164,9 @@ public class Interactable : MonoBehaviour
 	#region Internals
 
 
-	private bool IsInAppropriateLayer(Collider user)
+	private bool IsInAppropriateLayer(GameObject user)
 	{
-		return 0 != (relevant_layers.value & 1 << user.gameObject.layer);
-	}
-
-
-	protected bool AllowInteraction(Collider user)
-	{
-		if (user == null)
-		{
-			return false;
-		}
-		return is_near.Contains(user);
+		return 0 != (relevant_layers.value & 1 << user.layer);
 	}
 
 
@@ -202,7 +193,7 @@ public class Interactable : MonoBehaviour
 	}
 
 
-	protected void UpdateTextPosition()
+	public void UpdateTextPosition()
 	{
 		if (null != interaction_description)
 		{

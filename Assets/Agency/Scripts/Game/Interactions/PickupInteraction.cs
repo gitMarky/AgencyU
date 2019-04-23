@@ -36,10 +36,7 @@ public class PickupInteraction : InteractionDescription
 			{
 				inventory.Pickup(this);
 			}
-			//gameObject.transform.SetParent(user.transform);
 		}
-		// TODO: Add to inventory
-		//Destroy(gameObject);
 	}
 
 #region Holstering

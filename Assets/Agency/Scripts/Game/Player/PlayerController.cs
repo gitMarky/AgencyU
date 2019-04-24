@@ -28,10 +28,13 @@ public class PlayerController : MonoBehaviour
 		{
 			if (GetButtonDown(type))
 			{
+				Debug.Log("Checking interaction: " + type);
 				foreach (Interactable obj in interactions.GetInteractions(type))
 				{
+					Debug.Log(">   " + obj.gameObject.name);
 					if (obj.RequestInteraction(this.gameObject))
 					{
+						Debug.Log("Interacting with: " + obj);
 						return;
 					}
 				}
@@ -67,7 +70,7 @@ public class PlayerController : MonoBehaviour
 			case InteractionType.Place:			return "Place";
 			case InteractionType.Holster:		return "Holster";
 			default:
-				Debug.Log("Unhandled");
+				//Debug.Log("Unhandled");
 				return "Cancel";
 		 }
 	 }

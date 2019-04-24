@@ -29,6 +29,8 @@ public class Interactable : MonoBehaviour
 
 	protected Text interaction_description; // TODO: This may go to a different behavior?
 
+	private float time_elapsed; // Counter for the progress
+
 	/* --- Unity Callbacks (?) --- */
 
 	protected void Reset()
@@ -85,6 +87,23 @@ public class Interactable : MonoBehaviour
 		return this.interaction_data;
 	}
 
+	public bool RequestInteraction(GameObject user)
+	{
+		if (AllowInteraction(user))
+		{
+			if (FinishProgress())
+			{
+				ExecuteInteraction(user);
+			}
+			return true; // Stick with this one
+		}
+		else
+		{
+			ResetProgress(); // TODO: Will have a bug: Releasing the button does not reset the progress
+			return false; // Try a different interaction
+		}
+	}
+
 	/* --- Custom callbacks --- */
 
 
@@ -106,6 +125,12 @@ public class Interactable : MonoBehaviour
 	{
 		Debug.Log("Interaction");
 		GetInteractionData().DoInteraction(user);
+	}
+
+
+	protected virtual bool AllowInteraction(GameObject user)
+	{
+		return true; // TODO: For now
 	}
 
 
@@ -140,6 +165,32 @@ public class Interactable : MonoBehaviour
 		{
 			interaction_data = this.gameObject.GetComponent<InteractionDescription>();
 		}
+	}
+
+	private bool FinishProgress()
+	{
+		// Increase the progress
+		time_elapsed += Time.deltaTime;
+
+		// Update the image
+		//progress_image.gameObject.SetActive(true);
+		//progress_image.fillAmount = time_elapsed / time_to_hold;
+
+		// Evaluate
+		if (time_elapsed > GetInteractionData().GetTimeToHold())
+		{
+			ResetProgress();
+			return true;
+		}
+		Debug.Log("Progress " + (time_elapsed / GetInteractionData().GetTimeToHold()));
+		return false;
+	}
+
+
+	private void ResetProgress()
+	{
+		time_elapsed = 0f;
+		//progress_image.gameObject.SetActive(false);
 	}
 
 

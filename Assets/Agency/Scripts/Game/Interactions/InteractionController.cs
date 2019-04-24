@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 
 
@@ -18,7 +17,7 @@ public class InteractionController : MonoBehaviour
 	public void RegisterInteractable(Interactable item)
 	{
 		bool valid = item != null;
-		Trace.Assert(valid);
+		Debug.Assert(valid);
 		if (valid && !interactions.Contains(item))
 		{
 			interactions.Add(item);
@@ -31,7 +30,7 @@ public class InteractionController : MonoBehaviour
 	public void RemoveInteractable(Interactable item)
 	{
 		bool valid = item != null;
-		Trace.Assert(valid);
+		Debug.Assert(valid);
 		if (valid && interactions.Contains(item))
 		{
 			interactions.Remove(item);
@@ -64,17 +63,7 @@ public class InteractionController : MonoBehaviour
 	public List<Interactable> GetInteractions(InteractionType type)
 	{
 		List<Interactable> list;
-		sorted.TryGetValue(type, out list);
-		// Return an empty list?
-		if (list == null)
-		{
-			Trace.Assert(false, "List is null");
-			return new List<Interactable>();
-		}
-		else
-		{
-			return list;
-		}
+		return sorted.TryGetValue(type, out list) ? list : new List<Interactable>();
 	}
 }
 

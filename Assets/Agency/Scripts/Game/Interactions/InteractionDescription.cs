@@ -24,6 +24,10 @@ public class InteractionDescription : MonoBehaviour
 	[Tooltip("This describes the interaction category.")]
 	public InteractionType type;
 
+	[Range(0.0f, 1.0f)]
+	[Tooltip("The button must be held this long, in seconds, before the event is triggered")]
+	public float time_to_hold = 0.0f; // Seconds
+
 
 	/* --- Unity Callbacks --- */
 
@@ -70,5 +74,12 @@ public class InteractionDescription : MonoBehaviour
 	public string GetDescription()
 	{
 		return "[" + button + "] " + description;
+	}
+
+
+	/** Gets the time, in seconds, how long the button must be pressed for a successful interaction. */
+	public float GetTimeToHold()
+	{
+		return time_to_hold;
 	}
 }

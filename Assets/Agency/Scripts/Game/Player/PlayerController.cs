@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,20 +20,57 @@ public class PlayerController : MonoBehaviour
 			return;
 		}*/
 
-		HumanoidInventoryController inventory = this.gameObject.GetComponent<HumanoidInventoryController>();
+
+		// Handle possible interactions first
 		InteractionController interactions = this.gameObject.GetComponent<InteractionController>();
-
 		interactions.UpdateInteractions();
+		foreach (InteractionType type in Enum.GetValues(typeof(InteractionType)))
+		{
+			if (GetButtonDown(type))
+			{
+				foreach (Interactable obj in interactions.GetInteractions(type))
+				{
+					if (obj.RequestInteraction(this.gameObject))
+					{
+						return;
+					}
+				}
+			}
+		}
 
-
-		if (Input.GetButtonDown("Place"))
+		// Handle inventory stuff
+		HumanoidInventoryController inventory = this.gameObject.GetComponent<HumanoidInventoryController>();
+		if (GetButtonDown(InteractionType.Place))
 		{
 			inventory.ExecutePlace();
 		}
-		else if (Input.GetButtonDown("Holster"))
+		else if (GetButtonDown(InteractionType.Holster))
 		{
 			inventory.ExecuteHolster();
 		}
 	}
+#endregion
+
+#region Internals
+
+	private bool GetButtonDown(InteractionType type)
+	{
+		return Input.GetButtonDown(ButtonFor(type)); // Lazy method
+	}
+	private string ButtonFor(InteractionType type)
+	 {
+		 switch (type)
+		 {
+    		case InteractionType.Use:			return "Interaction";
+			case InteractionType.Pickup:		return "Pickup";
+    		case InteractionType.Distraction:	return "Distraction";
+			case InteractionType.Place:			return "Place";
+			case InteractionType.Holster:		return "Holster";
+			default:
+				Debug.Log("Unhandled");
+				return "Cancel";
+		 }
+	 }
+
 #endregion
 }

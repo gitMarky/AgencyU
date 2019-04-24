@@ -18,6 +18,10 @@ public enum InteractionType
     /** [Z] Retrieve item */
     Case,
     /** [T] Disguise */
-    Disguise
+    Disguise,
+    /** [P] Place */
+    Place,
+    /** [H] Holster */
+    Holster, 
 }
 

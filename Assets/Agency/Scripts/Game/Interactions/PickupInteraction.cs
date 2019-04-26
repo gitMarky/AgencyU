@@ -60,6 +60,11 @@ public class PickupInteraction : InteractionDescription
 		// TODO: Should be the model
 		gameObject.SetActive(visible);
 	}
+	public bool IsVisible()
+	{
+		// TODO: Should be the model
+		return gameObject.activeSelf;
+	}
 
 #endregion
 

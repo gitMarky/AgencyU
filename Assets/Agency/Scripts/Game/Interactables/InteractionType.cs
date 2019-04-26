@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /**
- Defines how you can interact with an item
+ Defines how you can interact with an item.
+ Sorted by priority.
+ TODO: Define priority.
  */
 public enum InteractionType
 {
@@ -23,5 +25,9 @@ public enum InteractionType
     Place,
     /** [H] Holster */
     Holster, 
+    /** [Mouse 2] Aim */
+    Aim,
+    /** [Mouse 2] Throw */
+    Throw,
 }
 

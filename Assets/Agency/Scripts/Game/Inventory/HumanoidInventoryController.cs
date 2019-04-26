@@ -403,7 +403,7 @@ public class HumanoidInventoryController : Inventory
 		}
 	}
 
-	private void DropItem(PickupInteraction item, bool is_attached)
+	public void DropItem(PickupInteraction item, bool is_attached)
 	{
 		if (item != null)
 		{
